@@ -2,3 +2,5 @@
 CustomSolutionPrototype/Library/*
 CustomSolutionPrototype/Temp/*
 git_key
+*.pyc
+*.swp

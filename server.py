@@ -41,8 +41,12 @@ import json
 ################################################################################
 
 from player import Player
-from player import get_players
-from player import update_players
+from objects import Object
+
+from exports import get_players
+from exports import update_players
+from exports import get_objects
+from exports import update_objects
 
 def send_str(csock, message):
     csock.send(message)
@@ -56,29 +60,35 @@ def receive_lines(csock):
 
     return lines
 
-def serve(csock, players):
-    # listen
-    receive_lines(csock)
+def serve(csock, resource):
+  #listen
+  receive_lines(csock)
 
-    # send the model
-    resource = {
-        "players" : [player.json() for player in players] 
-    }
-    print resource
-    jresouce = json.dumps(resource)
+  # send the model
+  # jresouce - json
+  # sresouce - resouce
+  jresource = {
+      "players": [player.json() for player in resource["players"]],
+      "objects": [obj.json() for obj in resource["objects"]]
+  }
+  print jresource
+  sresouce = json.dumps(jresource)
+  send_str(csock, sresouce)
 
-    send_str(csock, jresouce)
+  # update the model
+  update_players(resource["players"])
+  update_objects(resource["objects"])
 
-    # update the model
-    update_players(players)
-
-    # close connection
-    csock.close()
-    sleep(1)
+  # close connection
+  csock.close()
+  sleep(1)
 
 ################################################################################
 
-players = get_players()
+resource = {
+	"players" : get_players(),
+	"objects" : get_objects()
+}
 
 #listen for connection
 while True:
@@ -86,4 +96,4 @@ while True:
     print "Connection from:" + `caddr`
 
     # serve the connection
-    serve(csock, players)
+    serve(csock, resource)

@@ -11,7 +11,7 @@ public class WorkerManager : MonoBehaviour
 	private const int port = 4000;
 
 	// Setup to ping the server every second.
-	void Start() 
+	void Start()
 	{
 		Debug.Log("Starting the game...");
 		InvokeRepeating("UpdateMapState", 0.0f, 1.0f);
@@ -34,7 +34,7 @@ public class WorkerManager : MonoBehaviour
 		var playersList = JSON.Parse(request.downloadHandler.text)["players"];
 		Debug.Log(playersList.Count);
 
-		for (int i = 0; i < playersList.Count; i++) 
+		for (int i = 0; i < playersList.Count; i++)
 		{
 			var player = playersList[i];
 
@@ -44,7 +44,7 @@ public class WorkerManager : MonoBehaviour
 			float x = (float) player["x"].AsInt;
 			float y = (float) player["y"].AsInt;
 
-			if (avatar == null) 
+			if (avatar == null)
 			{
 				// Create new game object.
 				avatar = GameObject.CreatePrimitive(PrimitiveType.Cube);
