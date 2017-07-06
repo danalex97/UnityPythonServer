@@ -40,6 +40,10 @@ import json
 
 ################################################################################
 
+from player import Player
+from player import get_players
+from player import update_players
+
 def send_str(csock, message):
     csock.send(message)
 
@@ -52,25 +56,29 @@ def receive_lines(csock):
 
     return lines
 
-def get_random_position(xmax = 5, ymax = 5):
-    from random import randint
-
-    return {
-        'x' : randint(-xmax, xmax),
-        'y' : randint(-ymax, ymax)
-    }
-
-def serve(csock):
+def serve(csock, players):
+    # listen
     receive_lines(csock)
 
-    resource = get_random_position()
+    # send the model
+    resource = {
+        "players" : [player.json() for player in players] 
+    }
     print resource
     jresouce = json.dumps(resource)
 
     send_str(csock, jresouce)
 
+    # update the model
+    update_players(players)
+
+    # close connection
     csock.close()
     sleep(1)
+
+################################################################################
+
+players = get_players()
 
 #listen for connection
 while True:
@@ -78,4 +86,4 @@ while True:
     print "Connection from:" + `caddr`
 
     # serve the connection
-    serve(csock)
+    serve(csock, players)
