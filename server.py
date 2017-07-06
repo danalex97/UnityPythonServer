@@ -1,6 +1,8 @@
 import socket
 import re
 import sys
+
+from time import sleep
 from subprocess import call
 
 port = 0
@@ -37,26 +39,29 @@ import sys
 
 ################################################################################
 
-while True:
-    csock, caddr = sock.accept()
-    print "Connection from:" + `caddr`
+def send_str(csock, message):
+    csock.send(message)
 
+def receive_lines(csock):
     # receive the GET from front-ent
     req = csock.recv(1024)
 
     # # process the received input
     lines = req.split('\n')
 
-    # the default client response will be the server that we will use to test
-    # TODO: use Python client & then use Unity client
-    csock.sendall("""HTTP/1.0 200 OK
-		Content-Type: text/html
-		<html>
-			<head>
-				<title>Success</title>
-			</head>
-			<body>
-				Success
-			</body>
-		</html>
-	""" )
+    return lines
+
+def serve(csock):
+    receive_lines(csock)
+    send_str(csock, "Helo")
+
+    csock.close()
+    sleep(1)
+
+#listen for connection
+while True:
+    csock, caddr = sock.accept()
+    print "Connection from:" + `caddr`
+
+    # serve the connection
+    serve(csock)
