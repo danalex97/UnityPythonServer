@@ -8,12 +8,10 @@ class Player:
         self._move_pos = 0
 
     def json(self):
-        return {
-            self.id : {
-                "id" : self.id,
-                "x" : self.x,
-                "y" : self.y
-            }
+        return  {
+            "id" : self.id,
+            "x" : self.x,
+            "y" : self.y
         }
 
     def _move_dummy(self):

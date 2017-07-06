@@ -13,38 +13,46 @@ public class WorkerManager : MonoBehaviour
 	// Setup to ping the server every second.
 	void Start() 
 	{
+		Debug.Log("Starting the game...");
 		InvokeRepeating("UpdateMapState", 0.0f, 1.0f);
 	}
-	
-	// Gets a list of the players with their positions.
+
+	// Wrap request in a coroutine.
 	void UpdateMapState()
 	{
-		var playersList = JSON.Parse(CurrentRawMapState());
+		Debug.Log("Updating map.");
+		StartCoroutine(RequestMapState());
+	}
 
-		foreach (var player in playersList) 
+	// Gets a list of the players with their positions.
+	IEnumerator RequestMapState()
+	{
+		//string requestAddress = String.Format("{0}:{0}", url, port);
+		UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:4000");
+		yield return request.Send();
+
+		var playersList = JSON.Parse(request.downloadHandler.text)["players"];
+		Debug.Log(playersList.Count);
+
+		for (int i = 0; i < playersList.Count; i++) 
 		{
-			string id = player["id"].AsString;
+			var player = playersList[i];
+
+			string id = Convert.ToString(player["id"].AsInt);
 			GameObject avatar = GameObject.Find(id);
 
-			int x = player["x"].AsInt;
-			int y = player["y"].AsInt;
+			float x = (float) player["x"].AsInt;
+			float y = (float) player["y"].AsInt;
 
 			if (avatar == null) 
 			{
 				// Create new game object.
 				avatar = GameObject.CreatePrimitive(PrimitiveType.Cube);
-				avatar.transform.position = Vector3(x, 0.5, y);
+				avatar.transform.position = new Vector3(x, 0.5f, y);
 				avatar.name = id;
 			}
-			avatar.transform.Translate (x, 0.5, y);
+			avatar.transform.position = new Vector3(x, 0.5f, y);
 			Debug.Log("Player " + id + " is at position (" + x + ", " + y + ")");
 		}
-	}
-
-	// Perform GET request to the server.
-	string CurrentRawMapState()
-	{
-		WWW request = new WWW(String.Format("{0}:{0}", url, port));
-		yield return request.text;
 	}
 }
