@@ -15,8 +15,8 @@ def update_players(players):
 
 def get_objects():
     return [
-        Object(10, 4, -4),
-        Object(11, -4, 4)
+        Object(0, 4, -4),
+        Object(1, -4, 4)
     ]
 
 def update_objects(objects):

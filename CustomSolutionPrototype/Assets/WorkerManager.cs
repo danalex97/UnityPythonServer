@@ -14,7 +14,45 @@ public class WorkerManager : MonoBehaviour
 	void Start()
 	{
 		Debug.Log("Starting the game...");
+
+		BuildStaticScene();
 		InvokeRepeating("UpdateMapState", 0.0f, 1.0f);
+	}
+
+	void BuildStaticScene()
+	{
+		Debug.Log("Initial map.");
+		StartCoroutine(GetFixedObjects());
+	}
+
+	IEnumerator GetFixedObjects()
+	{
+		UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:4000");
+		yield return request.Send();
+
+		var objectList = JSON.Parse(request.downloadHandler.text)["objects"];
+		Debug.Log(objectList.Count);
+
+		for (int i = 0; i < objectList.Count; i++)
+		{
+			var obj = objectList[i];
+
+			string id = "object" + Convert.ToString(obj["id"].AsInt);
+			GameObject avatar = GameObject.Find(id);
+
+			float x = (float) obj["x"].AsInt;
+			float y = (float) obj["y"].AsInt;
+
+			if (avatar == null)
+			{
+				// Create new game object.
+				avatar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				avatar.transform.position = new Vector3(x, 0.5f, y);
+				avatar.name = id;
+			}
+			avatar.transform.position = new Vector3(x, 0.5f, y);
+			Debug.Log("Object " + id + " is at position (" + x + ", " + y + ")");
+		}
 	}
 
 	// Wrap request in a coroutine.
@@ -38,7 +76,7 @@ public class WorkerManager : MonoBehaviour
 		{
 			var player = playersList[i];
 
-			string id = Convert.ToString(player["id"].AsInt);
+			string id = "player" + Convert.ToString(player["id"].AsInt);
 			GameObject avatar = GameObject.Find(id);
 
 			float x = (float) player["x"].AsInt;
@@ -47,7 +85,7 @@ public class WorkerManager : MonoBehaviour
 			if (avatar == null)
 			{
 				// Create new game object.
-				avatar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				avatar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 				avatar.transform.position = new Vector3(x, 0.5f, y);
 				avatar.name = id;
 			}
