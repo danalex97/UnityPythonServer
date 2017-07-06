@@ -29,7 +29,8 @@ class Player:
 def get_players():
     return [
         Player(0, 0, 0),
-        Player(1, 5, 5)
+        Player(1, 3, 3),
+        Player(2, -3, -3)
     ]
 
 def update_players(players):
