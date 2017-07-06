@@ -6,28 +6,45 @@ using UnityEngine.Networking;
 using SimpleJSON;
 
 public class WorkerManager : MonoBehaviour
-	{
-	// Use this for initialization
-	void Start () 
-	{
-		InvokeRepeating("GetAction", 0.0f, 1.0f);
+{
+	private const string url = "http://127.0.0.1";
+	private const int port = 4000;
 
+	// Setup to ping the server every second.
+	void Start() 
+	{
+		InvokeRepeating("UpdateMapState", 0.0f, 1.0f);
 	}
 	
-	// Get movement
-	void GetAction ()
+	// Gets a list of the players with their positions.
+	void UpdateMapState()
 	{
-		WWW request = new WWW ("http://127.0.0.1:4000");
-		
-		while (!request.isDone) {}
+		var playersList = JSON.Parse(CurrentRawMapState());
 
-		var gameData = JSON.Parse(request.text);
-		int x = gameData["x"].AsInt;
-		int y = gameData["y"].AsInt;
+		foreach (var player in playersList) 
+		{
+			string id = player["id"].AsString;
+			GameObject avatar = GameObject.Find(id);
 
-		transform.Translate (x * Time.deltaTime, 0, 0);
-		transform.Translate (0, y * Time.deltaTime, 0);
-	
-		Debug.Log("x: " + x + ", y: " + y);
+			int x = player["x"].AsInt;
+			int y = player["y"].AsInt;
+
+			if (avatar == null) 
+			{
+				// Create new game object.
+				avatar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				avatar.transform.position = Vector3(x, 0.5, y);
+				avatar.name = id;
+			}
+			avatar.transform.Translate (x, 0.5, y);
+			Debug.Log("Player " + id + " is at position (" + x + ", " + y + ")");
+		}
+	}
+
+	// Perform GET request to the server.
+	string CurrentRawMapState()
+	{
+		WWW request = new WWW(String.Format("{0}:{0}", url, port));
+		yield return request.text;
 	}
 }
