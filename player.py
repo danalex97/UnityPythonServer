@@ -4,7 +4,7 @@ class Player:
         self.x = x
         self.y = y
 
-        self._move_sequence = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+        self._move_sequence = [(-1, 0), (0, -1), (0, -2), (0, -1), (1, 0), (0, 1)]
         self._move_pos = 0
 
     def json(self):
