@@ -30,6 +30,7 @@ sock.listen(1)
 
 import signal
 import sys
+import json
 
 #register a specific signal handler if necessary at the termination of the program
 # def signal_handler(signal, frame):
@@ -51,9 +52,22 @@ def receive_lines(csock):
 
     return lines
 
+def get_random_position(xmax = 5, ymax = 5):
+    from random import randint
+
+    return {
+        'x' : randint(-xmax, xmax),
+        'y' : randint(-ymax, ymax)
+    }
+
 def serve(csock):
     receive_lines(csock)
-    send_str(csock, "Helo")
+
+    resource = get_random_position()
+    print resource
+    jresouce = json.dumps(resource)
+
+    send_str(csock, jresouce)
 
     csock.close()
     sleep(1)
