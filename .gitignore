@@ -1,4 +1,4 @@
 *.bin
-CustomSolutionPrototype/Library/
-CustomSolutionPrototype/Temp/
+CustomSolutionPrototype/Library/*
+CustomSolutionPrototype/Temp/*
 git_key
