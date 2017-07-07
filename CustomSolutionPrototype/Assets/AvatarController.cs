@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class AvatarController : MonoBehaviour 
 {
+	private const float speed = 1.25f;
+
+	private float startTime;
 	private Vector3 currPosition;
 	private Vector3 nextPosition;
-	private float startTime;
 
 	public AvatarController()
 	{
@@ -15,22 +17,17 @@ public class AvatarController : MonoBehaviour
 		nextPosition = transform.position;
 	}
 
-	// Use this for initialization
-	void Start() 
-	{
-		
-	}
-	
-	// Move the player
+	// Move the player to next position.
 	void Update() 
 	{
 		if (nextPosition != currPosition) 
 		{
-			float step = Time.time - startTime;
+			float step = (Time.time - startTime) * speed;
 			transform.position = Vector3.Lerp(currPosition, nextPosition, step);
 		}	
 	}
 
+	// Set next destination.
 	public void SetNextPosition(Vector3 position)
 	{
 		currPosition = transform.position;

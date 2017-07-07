@@ -23,14 +23,16 @@ public class WorkerManager : MonoBehaviour
 		StartCoroutine(RequestMapState());
 	}
 
-	// Gets a list of the players with their positions.
+	// Gets the updates of the map.
 	IEnumerator RequestMapState()
 	{
 		UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:4000/update");
 		yield return request.Send();
 
-		var playersList = JSON.Parse(request.downloadHandler.text)["players"];
-		Debug.Log(playersList.Count);
+		var updates = JSON.Parse (request.downloadHandler.text);
+
+		// Update the positions of the players.
+		var playersList = updates["players"];
 
 		for (int i = 0; i < playersList.Count; i++)
 		{
@@ -48,6 +50,31 @@ public class WorkerManager : MonoBehaviour
 
 			Debug.Log("Moved " + id + " to position (" + x + ", " + y + ")");
 		}
+
+		// Generate new players if new players have been added.
+		var newPlayers = updates["new_players"];
+
+		for (int i = 0; i < newPlayers.Count; i++) 
+		{
+			var newPlayer = newPlayers[i];
+
+			string id = "player" + Convert.ToString(newPlayer["id"].AsInt);
+			float x = (float) newPlayer["x"].AsInt;
+			float y = (float) newPlayer["y"].AsInt;
+
+			CreatePlayer (id, x, y);
+		}
+
+		// Delete players.
+		var deletedPlayers = updates["deleted_players"];
+
+		for (int i = 0; i < deletedPlayers.Count; i++)
+		{
+			string id = "players" + Convert.ToString(deletedPlayers[i].AsInt);
+
+			GameObject avatarToDelete = GameObject.Find(id);
+			Destroy(avatarToDelete);
+		}
 	}
 
 	// Wrap initialisation request in coroutine.
@@ -60,7 +87,6 @@ public class WorkerManager : MonoBehaviour
 	// Request map dimensions and static objects, i.e. walls.
 	IEnumerator GetFixedObjects()
 	{
-		Debug.Log("afdsgsdfgdsg");
 		UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:4000/start");
 		yield return request.Send();
 
@@ -76,6 +102,7 @@ public class WorkerManager : MonoBehaviour
 		GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		floor.transform.position = new Vector3(minX + maxX, 0.0f, minY + maxY);
 		floor.transform.localScale = new Vector3((maxX - minX) / 10.0f, 1.0f, (maxY - minY) / 10.0f);
+		floor.GetComponent<Renderer>().material.color = Color.gray;
 
 		// Create cubes (walls).
 		var objectList = map["objects"];
@@ -93,6 +120,7 @@ public class WorkerManager : MonoBehaviour
 			GameObject wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			wall.transform.position = new Vector3(x, 0.5f, y);
 			wall.name = id;
+			wall.GetComponent<Renderer>().material.color = Color.black;
 
 			Debug.Log(id + " is at position (" + x + ", " + y + ")");
 		}
@@ -110,13 +138,23 @@ public class WorkerManager : MonoBehaviour
 			float y = (float) player["y"].AsInt;
 
 			// Create new game object.
-			GameObject avatar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-			avatar.transform.position = new Vector3(x, 0.5f, y);
-			avatar.name = id;
-
-			avatar.AddComponent<AvatarController>();
-
-			Debug.Log(id + " is at position (" + x + ", " + y + ")");
+			CreatePlayer(id, x, y);
 		}
+	}
+
+	// Create new player.
+	void CreatePlayer(string id, float x, float y)
+	{
+		// Generate 3D shape.
+		GameObject avatar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+		avatar.transform.position = new Vector3(x, 0.5f, y);
+		avatar.name = id;
+		avatar.AddComponent<AvatarController>();
+
+		// Assign random colour.
+		avatar.GetComponent<Renderer>().material.color = UnityEngine.Random.ColorHSV();
+			
+		Debug.Log("Created " + id + " at position (" + x + ", " + y + ")");
 	}
 }
