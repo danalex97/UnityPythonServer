@@ -42,6 +42,7 @@ import json
 
 from player import Player
 from objects import Object
+from player_controller import PlayerController
 
 from exports import get_players
 from exports import update_players
@@ -71,9 +72,25 @@ class JSender():
 def serve(csock, resource):
   jsender = JSender(csock)
 
+  controller = PlayerController()
+
   #listen
   get_request = receive_lines(csock)[0]
   resource_identifier = get_request.split(' ')[1]
+
+  print resource_identifier
+
+  if resource_identifier.find("create") != -1:
+    print "Creating new player"
+    pack = resource_identifier.split("S")
+    player = Player(pack[1], pack[2], pack[3])
+    controller.add_player(player)
+
+  if resource_identifier.find("delete") != -1:
+    print "Delete player"
+    pack = resource_identifier.split("S")
+    player_id = pack[1]
+    controller.delete_player(player_id)
 
   if resource_identifier == "/start":
 	  jsender.send({
@@ -87,7 +104,9 @@ def serve(csock, resource):
 
   if resource_identifier == "/update":
     jsender.send({
-      "players": [obj.json() for obj in resource["players"]]
+      "players": [obj.json() for obj in resource["players"]],
+	  "new_players": [obj.json() for obj in controller.get_new_players()],
+	  "deleted_players": [obj.json() for obj in controller.get_deleted_players()]
     })
 
   # update the model

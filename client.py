@@ -8,16 +8,17 @@ class Client:
         conn = httplib.HTTPConnection(self.server + ":" + str(self.port))
         conn.request("GET", resource) # the GET has side effects, we use RMM 1
 
-client = Client()
-client.request("/start")
-
 import sys
 
 def create_player(id, x, y):
     print "Creating player:" + str(id) + " " + str(x) + " " + str(y)
+    client = Client()
+    client.request("/create/S" + str(id) + "S" + str(x) + "S" + str(y))
 
 def delete_player(id):
     print "Deleting player:" + str(id)
+    client = Client()
+    client.request("/delete/S" + str(id))
 
 def usage():
     print "To use:"
