@@ -26,7 +26,6 @@ public class WorkerManager : MonoBehaviour
 	// Gets a list of the players with their positions.
 	IEnumerator RequestMapState()
 	{
-		//string requestAddress = String.Format("{0}:{0}", url, port);
 		UnityWebRequest request = UnityWebRequest.Get("http://127.0.0.1:4000/update");
 		yield return request.Send();
 
@@ -43,15 +42,11 @@ public class WorkerManager : MonoBehaviour
 			float x = (float) player["x"].AsInt;
 			float y = (float) player["y"].AsInt;
 
-			if (avatar == null)
-			{
-				// Create new game object.
-				avatar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-				avatar.transform.position = new Vector3(x, 0.5f, y);
-				avatar.name = id;
-			}
-			avatar.transform.position = new Vector3(x, 0.5f, y);
-			Debug.Log("Player " + id + " is at position (" + x + ", " + y + ")");
+			AvatarController controller = avatar.GetComponent<AvatarController>();
+			Vector3 nextPosition = new Vector3(x, 0.5f, y);
+			controller.SetNextPosition(nextPosition);
+
+			Debug.Log("Moved " + id + " to position (" + x + ", " + y + ")");
 		}
 	}
 
@@ -99,9 +94,29 @@ public class WorkerManager : MonoBehaviour
 			wall.transform.position = new Vector3(x, 0.5f, y);
 			wall.name = id;
 
-			Debug.Log("Object " + id + " is at position (" + x + ", " + y + ")");
+			Debug.Log(id + " is at position (" + x + ", " + y + ")");
 		}
 
 		// Create spheres (avatars)
+		var playersList = map["players"];
+
+		for (int i = 0; i < playersList.Count; i++) 
+		{
+			var player = playersList[i];
+
+			string id = "player" + Convert.ToString(player["id"].AsInt);
+
+			float x = (float) player["x"].AsInt;
+			float y = (float) player["y"].AsInt;
+
+			// Create new game object.
+			GameObject avatar = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+			avatar.transform.position = new Vector3(x, 0.5f, y);
+			avatar.name = id;
+
+			avatar.AddComponent<AvatarController>();
+
+			Debug.Log(id + " is at position (" + x + ", " + y + ")");
+		}
 	}
 }
