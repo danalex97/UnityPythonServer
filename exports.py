@@ -1,3 +1,5 @@
+import time
+import random
 from player import Player
 from objects import Object
 
@@ -14,10 +16,17 @@ def update_players(players):
         player.update()
 
 def get_objects():
-    return [
-        Object(0, 4, -4),
-        Object(1, -4, 4)
-    ]
+	random.seed(time.gmtime)
+	objects = [];
+
+	for i in range(10):
+		x = random.randint(-10, 10)
+		y = random.randint(-10, 10)
+
+		if not (x == 2 and y == 2) and not (x == 0 and y == 0):
+			objects.append(Object(i, x, y))
+
+	return objects
 
 def update_objects(objects):
     for obj in objects:
