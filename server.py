@@ -60,20 +60,35 @@ def receive_lines(csock):
 
     return lines
 
-def serve(csock, resource):
-  #listen
-  receive_lines(csock)
+class JSender():
+	def __init__(self, csock):
+		self.csock = csock
+	def send(self, jresource):
+		print "Sending jresource: " + str(jresource)
+		sresouce = json.dumps(jresource)
+		send_str(self.csock, sresouce)
 
-  # send the model
-  # jresouce - json
-  # sresouce - resouce
-  jresource = {
-      "players": [player.json() for player in resource["players"]],
-      "objects": [obj.json() for obj in resource["objects"]]
-  }
-  print jresource
-  sresouce = json.dumps(jresource)
-  send_str(csock, sresouce)
+def serve(csock, resource):
+  jsender = JSender(csock)
+
+  #listen
+  get_request = receive_lines(csock)[0]
+  resource_identifier = get_request.split(' ')[1]
+
+  if resource_identifier == "/start":
+	  jsender.send({
+	  	"minX" : -10,
+		"minY" : -10,
+		"maxX" : 10,
+		"maxY" : 10,
+	  	"objects": [obj.json() for obj in resource["objects"]],
+		"players": [obj.json() for obj in resource["players"]]
+	  })
+
+  if resource_identifier == "/update":
+    jsender.send({
+      "players": [obj.json() for obj in resource["players"]]
+    })
 
   # update the model
   update_players(resource["players"])
