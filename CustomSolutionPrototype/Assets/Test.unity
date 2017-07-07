@@ -247,7 +247,7 @@ GameObject:
   - component: {fileID: 1619266180}
   - component: {fileID: 1619266181}
   m_Layer: 0
-  m_Name: Worker Manager
+  m_Name: World Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
