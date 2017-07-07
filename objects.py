@@ -4,7 +4,6 @@ class Object:
         self.x = x
         self.y = y
 
-        # move into son class
         self._move_sequence = [(-1, 0), (0, -1), (0, -1), (0, 1), (1, 0), (0, 1)]
         self._move_pos = 0
 

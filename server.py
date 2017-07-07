@@ -72,8 +72,6 @@ class JSender():
 def serve(csock, resource):
   jsender = JSender(csock)
 
-  controller = PlayerController()
-
   #listen
   get_request = receive_lines(csock)[0]
   resource_identifier = get_request.split(' ')[1]
@@ -103,11 +101,15 @@ def serve(csock, resource):
 	  })
 
   if resource_identifier == "/update":
-    jsender.send({
+    # TODO: delete players
+	new_players = controller.get_new_players()
+	jsender.send({
       "players": [obj.json() for obj in resource["players"]],
-	  "new_players": [obj.json() for obj in controller.get_new_players()],
-	  "deleted_players": [obj.json() for obj in controller.get_deleted_players()]
+	  "new_players": [obj.json() for obj in new_players],
+	  "deleted_players": [obj.id for obj in controller.get_deleted_players()]
     })
+	#resource["players"] += new_players
+	#print str(resource["players"])
 
   # update the model
   update_players(resource["players"])
@@ -123,6 +125,7 @@ resource = {
 	"players" : get_players(),
 	"objects" : get_objects()
 }
+controller = PlayerController()
 
 #listen for connection
 while True:
